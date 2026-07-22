@@ -1,0 +1,132 @@
+@switch (status()) {
+  @case ('loading') {
+    <div class="container section-pad skel">
+      <app-skeleton width="120px" height="1rem" />
+      <app-skeleton width="60%" height="2.6rem" radius="10px" />
+      <app-skeleton width="90%" height="1rem" />
+      <app-skeleton width="100%" height="320px" radius="18px" />
+    </div>
+  }
+  @case ('error') {
+    <div class="container section-pad"><app-error-state (retry)="load()" /></div>
+  }
+  @default {
+    @if (formation(); as f) {
+      <article @enter>
+        <!-- Hero -->
+        <header class="hero" [style.--accent]="f.categorie?.colorHex || '#6366f1'">
+          <div class="container">
+            <a class="back" routerLink="/formations"><span class="material-icons-round">arrow_back</span> Formations</a>
+            <div class="crumbs">
+              @if (f.categorie) {
+                <a [routerLink]="['/categories', f.categorie.id]" class="crumb">
+                  <span class="material-icons-round">{{ f.categorie.icon }}</span> {{ f.categorie.name }}
+                </a>
+              }
+              <span class="chip" [class]="diffClass()">{{ f.difficulty }}</span>
+            </div>
+            <h1>{{ f.title }}</h1>
+            <p class="lede">{{ f.description }}</p>
+            <div class="meta">
+              <span><span class="material-icons-round">schedule</span> {{ f.durationHours | duration }} of content</span>
+              <span><span class="material-icons-round">groups</span> {{ f.sessions.length }} sessions</span>
+              @if (f.formateur) {
+                <span><span class="material-icons-round">smart_toy</span> {{ f.formateur.name }}</span>
+              }
+            </div>
+            <div class="cta">
+              <a mat-flat-button color="primary" routerLink="/my-courses"><span class="material-icons-round">bolt</span>&nbsp;Start learning</a>
+              @if (f.sessions.length) {
+                <a mat-stroked-button [routerLink]="['/sessions', f.sessions[0].id]">View a session</a>
+              }
+            </div>
+          </div>
+        </header>
+
+        <div class="container body">
+          <div class="main">
+            <!-- Objectives -->
+            @if (f.objectives.length) {
+              <section class="block surface-card">
+                <h2><span class="material-icons-round">flag</span> What you'll learn</h2>
+                <ul class="objectives">
+                  @for (o of f.objectives; track o) {
+                    <li><span class="material-icons-round">check_circle</span> {{ o }}</li>
+                  }
+                </ul>
+              </section>
+            }
+
+            <!-- Technologies -->
+            @if (f.technologies.length) {
+              <section class="block surface-card">
+                <h2><span class="material-icons-round">memory</span> Technologies</h2>
+                <div class="tags">
+                  @for (t of f.technologies; track t) { <span class="chip">{{ t }}</span> }
+                </div>
+              </section>
+            }
+
+            <!-- Prerequisites -->
+            @if (f.prerequisites.length) {
+              <section class="block surface-card">
+                <h2><span class="material-icons-round">checklist</span> Prerequisites</h2>
+                <ul class="prereq">
+                  @for (p of f.prerequisites; track p) { <li><span class="material-icons-round">arrow_right</span> {{ p }}</li> }
+                </ul>
+              </section>
+            }
+
+            <!-- Sessions -->
+            <section class="block surface-card">
+              <h2><span class="material-icons-round">event_available</span> Sessions</h2>
+              @if (f.sessions.length === 0) {
+                <p class="muted">No sessions scheduled yet.</p>
+              } @else {
+                <div class="sessions">
+                  @for (s of f.sessions; track s.id) {
+                    <a class="srow" [routerLink]="['/sessions', s.id]">
+                      <div class="s-info">
+                        <span class="s-title">{{ s.title }}</span>
+                        <span class="s-date muted">{{ s.startDate | date: 'mediumDate' }} · {{ s.userCount }} learners</span>
+                      </div>
+                      <div class="s-prog">
+                        <div class="bar"><span [style.width.%]="s.progress"></span></div>
+                        <span class="pct">{{ s.progress }}%</span>
+                      </div>
+                      <span class="material-icons-round go">chevron_right</span>
+                    </a>
+                  }
+                </div>
+              }
+            </section>
+          </div>
+
+          <!-- AI trainer sidebar -->
+          <aside class="side">
+            @if (f.formateur) {
+              <div class="side-head">
+                <h2><span class="material-icons-round">auto_awesome</span> Your AI trainer</h2>
+              </div>
+              <app-ai-trainer-panel [trainer]="f.formateur" [formationId]="f.id" />
+              <a class="trainer-link surface-card" [routerLink]="['/trainers', f.formateur.id]">
+                <app-avatar [name]="f.formateur.name" [size]="40" badge="smart_toy" />
+                <div>
+                  <div class="tl-name">{{ f.formateur.name }}</div>
+                  <div class="tl-sub muted">View full profile</div>
+                </div>
+                <span class="material-icons-round">chevron_right</span>
+              </a>
+            } @else {
+              <div class="block surface-card no-trainer">
+                <span class="material-icons-round">smart_toy</span>
+                <h3>No AI trainer yet</h3>
+                <p class="muted">This formation hasn't been assigned an AI trainer.</p>
+              </div>
+            }
+          </aside>
+        </div>
+      </article>
+    }
+  }
+}

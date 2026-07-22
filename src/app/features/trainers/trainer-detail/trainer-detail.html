@@ -1,0 +1,77 @@
+@switch (status()) {
+  @case ('loading') {
+    <div class="container section-pad skel">
+      <app-skeleton width="120px" height="1rem" />
+      <app-skeleton width="200px" height="200px" radius="50%" />
+      <app-skeleton width="40%" height="2rem" radius="10px" />
+      <app-skeleton width="90%" height="1rem" />
+    </div>
+  }
+  @case ('error') {
+    <div class="container section-pad"><app-error-state (retry)="load()" /></div>
+  }
+  @default {
+    @if (trainer(); as t) {
+      <article @enter>
+        <header class="hero">
+          <div class="container hero-inner">
+            <a class="back" routerLink="/trainers"><span class="material-icons-round">arrow_back</span> AI Trainers</a>
+            <div class="head">
+              <app-avatar [name]="t.name" [size]="120" badge="smart_toy" />
+              <div class="head-txt">
+                <span class="ai-chip"><span class="material-icons-round">auto_awesome</span> AI Trainer · Anam.ai</span>
+                <h1>{{ t.name }}</h1>
+                <p class="bio">{{ t.bio }}</p>
+                <div class="tags">
+                  @for (e of expertise(); track e) { <span class="chip">{{ e }}</span> }
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="container body">
+          <div class="main">
+            <!-- Config -->
+            <section class="block surface-card">
+              <h2><span class="material-icons-round">tune</span> Avatar configuration</h2>
+              <div class="config">
+                <div class="cfg"><span class="material-icons-round">face</span><div><small>Avatar model</small><b>{{ t.avatarModel }}</b></div></div>
+                <div class="cfg"><span class="material-icons-round">record_voice_over</span><div><small>Voice</small><b>{{ t.voiceId }}</b></div></div>
+                <div class="cfg"><span class="material-icons-round">psychology</span><div><small>LLM</small><b>{{ t.llmId }}</b></div></div>
+                <div class="cfg"><span class="material-icons-round">badge</span><div><small>Avatar ID</small><b>{{ t.avatarId }}</b></div></div>
+              </div>
+              @if (t.systemPrompt) {
+                <div class="prompt">
+                  <small class="muted">System prompt</small>
+                  <p>{{ t.systemPrompt }}</p>
+                </div>
+              }
+            </section>
+
+            <!-- Courses -->
+            <section class="block-plain">
+              <h2 class="courses-title"><span class="material-icons-round">menu_book</span> Assigned courses</h2>
+              @if (formations().length === 0) {
+                <p class="muted">This trainer isn't assigned to any course yet.</p>
+              } @else {
+                <div class="grid" [@listStagger]="formations().length">
+                  @for (f of formations(); track f.id) {
+                    <app-formation-card [formation]="f" [accent]="f.categorie?.colorHex || null" />
+                  }
+                </div>
+              }
+            </section>
+          </div>
+
+          <aside class="side">
+            <div class="side-head"><h2><span class="material-icons-round">forum</span> Try {{ t.name }}</h2></div>
+            @if (summary(); as sum) {
+              <app-ai-trainer-panel [trainer]="sum" />
+            }
+          </aside>
+        </div>
+      </article>
+    }
+  }
+}

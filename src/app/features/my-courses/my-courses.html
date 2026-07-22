@@ -1,0 +1,49 @@
+<section class="container section-pad">
+  @switch (status()) {
+    @case ('loading') {
+      <app-card-skeleton [count]="4" />
+    }
+    @case ('error') {
+      <app-error-state (retry)="load()" />
+    }
+    @default {
+      @if (user(); as u) {
+        <!-- Header -->
+        <header class="head surface-card">
+          <div class="who">
+            <app-avatar [name]="u.userName" [size]="66" />
+            <div>
+              <span class="hi muted">Welcome back,</span>
+              <h1>{{ u.userName }}</h1>
+              <span class="mail muted">{{ u.email }}</span>
+            </div>
+          </div>
+          <div class="ring">
+            <app-progress-ring [value]="avgProgress()" [size]="110" caption="overall" />
+          </div>
+        </header>
+
+        @if (u.sessions.length === 0) {
+          <app-empty-state icon="school" title="You're not enrolled yet"
+            message="Browse formations and join a session to start learning with an AI trainer." />
+          <div class="empty-cta">
+            <a mat-flat-button color="primary" routerLink="/formations">Explore formations</a>
+          </div>
+        } @else {
+          <div class="stats">
+            <app-stat-card icon="menu_book" [value]="u.sessions.length" label="Enrolled sessions" />
+            <app-stat-card icon="hourglass_bottom" [value]="inProgress()" label="In progress" accent="var(--gradient-cool)" />
+            <app-stat-card icon="workspace_premium" [value]="completed()" label="Completed" accent="var(--gradient-warm)" />
+          </div>
+
+          <h2 class="sec-title">Continue learning</h2>
+          <div class="grid" [@listStagger]="u.sessions.length">
+            @for (s of u.sessions; track s.id) {
+              <app-session-card [session]="s" />
+            }
+          </div>
+        }
+      }
+    }
+  }
+</section>

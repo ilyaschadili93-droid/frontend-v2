@@ -1,0 +1,95 @@
+@switch (status()) {
+  @case ('loading') {
+    <div class="container section-pad skel">
+      <app-skeleton width="120px" height="1rem" />
+      <app-skeleton width="50%" height="2.4rem" radius="10px" />
+      <app-skeleton width="100%" height="220px" radius="18px" />
+    </div>
+  }
+  @case ('error') {
+    <div class="container section-pad"><app-error-state (retry)="load()" /></div>
+  }
+  @default {
+    @if (session(); as s) {
+      <article @enter>
+        <header class="hero">
+          <div class="container">
+            <a class="back" routerLink="/sessions"><span class="material-icons-round">arrow_back</span> Sessions</a>
+            <div class="hero-grid">
+              <div class="left">
+                <a class="crumb" [routerLink]="['/formations', s.formationId]">
+                  <span class="material-icons-round">menu_book</span> {{ s.formationTitle }}
+                </a>
+                <h1>{{ s.title }}</h1>
+                <div class="dates">
+                  <span><span class="material-icons-round">play_circle</span> Starts {{ s.startDate | date: 'mediumDate' }}</span>
+                  <span><span class="material-icons-round">flag</span> Ends {{ s.endDate | date: 'mediumDate' }}</span>
+                  <span><span class="material-icons-round">groups</span> {{ s.users.length }} enrolled</span>
+                </div>
+              </div>
+              <div class="ring">
+                <app-progress-ring [value]="s.progress" [size]="150" caption="completed" />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="container body">
+          <div class="main">
+            <section class="block surface-card">
+              <div class="block-head">
+                <h2><span class="material-icons-round">group</span> Participants</h2>
+                @if (isAdmin() && availableUsers().length) {
+                  <button mat-flat-button color="primary" [matMenuTriggerFor]="enrollMenu">
+                    <span class="material-icons-round">person_add</span>&nbsp;Enroll learner
+                  </button>
+                  <mat-menu #enrollMenu="matMenu">
+                    @for (u of availableUsers(); track u.id) {
+                      <button mat-menu-item (click)="enroll(u)">
+                        <span class="material-icons-round">add</span> {{ u.userName }} · {{ u.email }}
+                      </button>
+                    }
+                  </mat-menu>
+                }
+              </div>
+
+              @if (s.users.length === 0) {
+                <p class="muted empty-p">No learners enrolled yet.</p>
+              } @else {
+                <div class="people" [@listStagger]="s.users.length">
+                  @for (u of s.users; track u.id) {
+                    <div class="person surface-card">
+                      <app-avatar [name]="u.userName" [size]="46" />
+                      <div class="p-info">
+                        <span class="p-name">{{ u.userName }}</span>
+                        @if (isAdmin() && u.email) { <span class="p-mail muted">{{ u.email }}</span> }
+                      </div>
+                      @if (isAdmin()) {
+                        <button class="rm" (click)="remove(u.id, u.userName)" aria-label="Remove">
+                          <span class="material-icons-round">close</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          </div>
+
+          <aside class="side">
+            @if (s.formateur) {
+              <div class="side-head"><h2><span class="material-icons-round">auto_awesome</span> AI trainer</h2></div>
+              <app-ai-trainer-panel [trainer]="s.formateur" [formationId]="s.formationId" />
+            } @else {
+              <div class="block surface-card no-trainer">
+                <span class="material-icons-round">smart_toy</span>
+                <h3>No AI trainer</h3>
+                <p class="muted">This session has no assigned AI trainer.</p>
+              </div>
+            }
+          </aside>
+        </div>
+      </article>
+    }
+  }
+}

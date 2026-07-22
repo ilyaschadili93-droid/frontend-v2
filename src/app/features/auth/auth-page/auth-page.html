@@ -1,0 +1,99 @@
+<div class="auth">
+  <!-- Brand panel -->
+  <aside class="brand-panel">
+    <div class="brand-bg" aria-hidden="true">
+      <span class="blob b1"></span>
+      <span class="blob b2"></span>
+    </div>
+    <div class="brand-content">
+      <a class="logo-row" routerLink="/home">
+        <span class="logo"><span class="material-icons-round">smart_toy</span></span>
+        <span class="name">Formateur<span> AI</span></span>
+      </a>
+      <h1>Learn from AI trainers, out loud.</h1>
+      <p>Join Formateur AI to enroll in sessions and get modules presented by lifelike avatar trainers.</p>
+      <ul class="perks">
+        <li><span class="material-icons-round">smart_toy</span> AI avatar trainers (Anam.ai)</li>
+        <li><span class="material-icons-round">record_voice_over</span> Voice-first Q&amp;A</li>
+        <li><span class="material-icons-round">trending_up</span> Track your progress</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Form panel -->
+  <main class="form-panel">
+    <form class="card" (ngSubmit)="submit()" #f="ngForm" novalidate>
+      <a class="mobile-logo" routerLink="/home">
+        <span class="logo"><span class="material-icons-round">smart_toy</span></span>
+        <span class="name">Formateur<span class="gradient-text"> AI</span></span>
+      </a>
+
+      <h2>{{ isRegister() ? 'Create your account' : 'Welcome back' }}</h2>
+      <p class="muted sub">
+        {{ isRegister() ? 'Start learning with your AI trainers.' : 'Sign in to continue learning.' }}
+      </p>
+
+      @if (error()) {
+      <div class="alert" role="alert"><span class="material-icons-round">error_outline</span> {{ error() }}</div>
+      }
+
+      @if (isRegister()) {
+      <label class="field">
+        <span class="lbl">Username</span>
+        <div class="input">
+          <span class="material-icons-round">person</span>
+          <input name="userName" [(ngModel)]="userName" autocomplete="username" placeholder="jdupont" required />
+        </div>
+      </label>
+      }
+
+      <label class="field">
+        <span class="lbl">{{ isRegister() ? 'Email' : 'Email or username' }}</span>
+        <div class="input" [class.invalid]="isRegister() && email && !emailValid()">
+          <span class="material-icons-round">{{ isRegister() ? 'mail' : 'person' }}</span>
+          <input name="email" [type]="isRegister() ? 'email' : 'text'" [(ngModel)]="email"
+            [autocomplete]="isRegister() ? 'email' : 'username'"
+            [placeholder]="isRegister() ? 'you@example.com' : 'admin or you@example.com'" required />
+        </div>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Password</span>
+        <div class="input" [class.invalid]="isRegister() && password && password.length < 6">
+          <span class="material-icons-round">lock</span>
+          <input name="password" type="password" [(ngModel)]="password"
+            [attr.autocomplete]="isRegister() ? 'new-password' : 'current-password'" placeholder="••••••••" required />
+        </div>
+        @if (isRegister() && password && password.length < 6) { <span class="hint-err">At least 6 characters.</span> }
+      </label>
+
+      <button mat-flat-button color="primary" class="submit" type="submit" [disabled]="loading() || !formValid()">
+        @if (loading()) { <mat-progress-spinner diameter="20" mode="indeterminate" /> }
+        @else { {{ isRegister() ? 'Create account' : 'Sign in' }} }
+      </button>
+
+      @if (!isRegister()) {
+      <div class="demo muted">
+        <span class="material-icons-round">tips_and_updates</span>
+        Admin: <b>admin</b> / <b>admin</b>
+      </div>
+
+      <div class="demo muted">
+        <span class="material-icons-round">tips_and_updates</span>
+        Learner: <b>test&#64;example.com</b>/<b>password123</b>
+      </div>
+      }
+
+
+
+
+      <p class="switch muted">
+        @if (isRegister()) {
+        Already have an account? <a routerLink="/login">Sign in</a>
+        } @else {
+        New to Formateur AI? <a routerLink="/register">Create an account</a>
+        }
+      </p>
+    </form>
+  </main>
+</div>

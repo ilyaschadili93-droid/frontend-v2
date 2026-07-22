@@ -1,0 +1,108 @@
+<header class="navbar glass">
+  <div class="inner container">
+    <!-- Brand -->
+    <a class="brand" routerLink="/home" (click)="closeMobile()">
+      <span class="logo"><span class="material-icons-round">smart_toy</span></span>
+      <span class="name">Formateur<span class="gradient-text"> AI</span></span>
+    </a>
+
+    <!-- Center nav (desktop) -->
+    <nav class="links">
+      @for (item of navItems; track item.link) {
+        @if (!item.authOnly || isAuthenticated()) {
+          <a [routerLink]="item.link" routerLinkActive="active" class="link">{{ item.label }}</a>
+        }
+      }
+      @if (isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active" class="link admin-link">
+          <span class="material-icons-round">shield</span> Admin
+        </a>
+      }
+    </nav>
+
+    <!-- Right actions -->
+    <div class="actions">
+      <div class="search-wrap"><app-global-search /></div>
+
+      <!-- Notifications -->
+      <button mat-icon-button class="icon-btn" [matMenuTriggerFor]="notif" aria-label="Notifications">
+        <span class="material-icons-round" [matBadge]="notifications.length" matBadgeSize="small" matBadgeColor="warn">notifications</span>
+      </button>
+      <mat-menu #notif="matMenu" class="menu-panel">
+        <div class="menu-head">Notifications</div>
+        <mat-divider />
+        @for (n of notifications; track n.text) {
+          <button mat-menu-item>
+            <span class="material-icons-round n-ic">{{ n.icon }}</span>
+            <span class="n-text">{{ n.text }}</span>
+          </button>
+        }
+      </mat-menu>
+
+      <!-- Theme toggle -->
+      <button mat-icon-button class="icon-btn" (click)="toggleTheme()" [attr.aria-label]="isDark() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+        <span class="material-icons-round">{{ isDark() === 'dark' ? 'light_mode' : 'dark_mode' }}</span>
+      </button>
+
+      <!-- Profile / Auth -->
+      @if (isAuthenticated() && user(); as u) {
+        <button class="profile" [matMenuTriggerFor]="profile" aria-label="Profile">
+          <app-avatar [name]="u.userName" [size]="34" />
+        </button>
+        <mat-menu #profile="matMenu" class="menu-panel">
+          <div class="profile-head">
+            <app-avatar [name]="u.userName" [size]="40" />
+            <div>
+              <div class="p-name">{{ u.userName }}</div>
+              <div class="p-mail muted">{{ u.email }}</div>
+            </div>
+          </div>
+          <mat-divider />
+          @if (isAdmin()) {
+            <a mat-menu-item routerLink="/admin"><span class="material-icons-round">shield</span> Admin panel</a>
+          }
+          <a mat-menu-item routerLink="/my-courses"><span class="material-icons-round">school</span> My Courses</a>
+          <a mat-menu-item routerLink="/sessions"><span class="material-icons-round">groups</span> Sessions</a>
+          <button mat-menu-item (click)="toggleTheme()"><span class="material-icons-round">{{ isDark() === 'dark' ? 'light_mode' : 'dark_mode' }}</span> Toggle theme</button>
+          <mat-divider />
+          <button mat-menu-item (click)="logout()"><span class="material-icons-round">logout</span> Sign out</button>
+        </mat-menu>
+      } @else {
+        <a class="login-link" routerLink="/login">Log in</a>
+        <a mat-flat-button color="primary" class="signup-btn" routerLink="/register">Sign up</a>
+      }
+
+      <!-- Mobile toggle -->
+      <button mat-icon-button class="icon-btn mobile-toggle" (click)="toggleMobile()" aria-label="Menu">
+        <span class="material-icons-round">{{ mobileOpen() ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (mobileOpen()) {
+    <nav class="mobile-menu">
+      <div class="m-search"><app-global-search /></div>
+      @for (item of navItems; track item.link) {
+        @if (!item.authOnly || isAuthenticated()) {
+          <a [routerLink]="item.link" routerLinkActive="active" class="m-link" (click)="closeMobile()">
+            <span class="material-icons-round">{{ item.icon }}</span> {{ item.label }}
+          </a>
+        }
+      }
+      @if (isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active" class="m-link" (click)="closeMobile()">
+          <span class="material-icons-round">shield</span> Admin
+        </a>
+      }
+      <div class="m-auth">
+        @if (isAuthenticated()) {
+          <button class="m-link" (click)="logout(); closeMobile()"><span class="material-icons-round">logout</span> Sign out</button>
+        } @else {
+          <a class="m-link" routerLink="/login" (click)="closeMobile()"><span class="material-icons-round">login</span> Log in</a>
+          <a class="m-link" routerLink="/register" (click)="closeMobile()"><span class="material-icons-round">person_add</span> Sign up</a>
+        }
+      </div>
+    </nav>
+  }
+</header>

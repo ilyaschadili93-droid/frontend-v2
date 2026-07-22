@@ -1,0 +1,120 @@
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <span class="grid-overlay"></span>
+  </div>
+
+  <div class="container hero-inner" @enter>
+    <span class="pill glass"><span class="material-icons-round">auto_awesome</span> Powered by Anam.ai avatars & OpenAI</span>
+    <h1>Welcome to <span class="gradient-text">Formateur AI</span><br />learn from AI trainers, out loud.</h1>
+    <p class="sub">
+      An AI-powered e-learning platform where lifelike avatar trainers present modules and answer
+      your questions by voice — across marketing, software, security and finance.
+    </p>
+    <div class="cta">
+      <a mat-flat-button color="primary" class="big" routerLink="/formations">
+        <span class="material-icons-round">bolt</span>&nbsp;Start Learning
+      </a>
+      <a mat-stroked-button class="big" routerLink="/categories">
+        <span class="material-icons-round">explore</span>&nbsp;Explore
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats glass">
+      @for (s of stats(); track s.label) {
+        <div class="stat">
+          <span class="material-icons-round">{{ s.icon }}</span>
+          <div class="s-body">
+            <span class="s-val">{{ s.value }}</span>
+            <span class="s-lbl">{{ s.label }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+@if (status() === 'error') {
+  <div class="container section-pad"><app-error-state (retry)="load()" /></div>
+} @else {
+  <!-- ============ CATEGORIES ============ -->
+  <section class="container block">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow gradient-text">Categories</span>
+        <h2>Find your field</h2>
+      </div>
+      <a class="see-all" routerLink="/categories">See all <span class="material-icons-round">arrow_forward</span></a>
+    </div>
+
+    @if (status() === 'loading') {
+      <app-card-skeleton [count]="4" />
+    } @else {
+      <div class="cat-grid" [@listStagger]="categories().length">
+        @for (c of categories(); track c.id) {
+          <app-category-card [category]="c" />
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ============ FEATURED FORMATIONS ============ -->
+  <section class="container block">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow gradient-text">Featured</span>
+        <h2>Popular formations</h2>
+      </div>
+      <a class="see-all" routerLink="/formations">Browse all <span class="material-icons-round">arrow_forward</span></a>
+    </div>
+
+    @if (status() === 'loading') {
+      <app-card-skeleton [count]="6" />
+    } @else {
+      <div class="form-grid" [@listStagger]="featured().length">
+        @for (f of featured(); track f.id) {
+          <app-formation-card [formation]="f" [accent]="accentFor(f)" />
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ============ AI TRAINERS ============ -->
+  <section class="container block">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow gradient-text">Your mentors</span>
+        <h2>Meet the AI trainers</h2>
+      </div>
+      <a class="see-all" routerLink="/trainers">Meet all <span class="material-icons-round">arrow_forward</span></a>
+    </div>
+
+    @if (status() === 'loading') {
+      <app-card-skeleton [count]="3" />
+    } @else {
+      <div class="trainer-grid" [@listStagger]="topTrainers().length">
+        @for (t of topTrainers(); track t.id) {
+          <app-trainer-card [trainer]="t" />
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ============ CTA BANNER ============ -->
+  <section class="container">
+    <div class="cta-banner">
+      <div class="cta-bg" aria-hidden="true"></div>
+      <div class="cta-content">
+        <h2>Ready to learn with an AI trainer?</h2>
+        <p>Jump into a session and let your avatar mentor guide you — step by step, out loud.</p>
+        <a mat-flat-button class="big light" routerLink="/formations">
+          <span class="material-icons-round">rocket_launch</span>&nbsp;Get started
+        </a>
+      </div>
+    </div>
+  </section>
+}

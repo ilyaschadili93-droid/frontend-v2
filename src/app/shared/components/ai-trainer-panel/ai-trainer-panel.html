@@ -1,0 +1,119 @@
+<!-- ============ Inline launcher card ============ -->
+<div class="panel surface-card">
+  <div class="stage">
+    <div class="preview">
+      @if (!session() && trainer().avatarVideoUrl && !videoError()) {
+        <video [src]="trainer().avatarVideoUrl" autoplay muted loop playsinline (error)="videoError.set(true)"></video>
+      } @else {
+        <div class="video-fallback"><app-avatar [name]="trainer().name" [size]="88" badge="smart_toy" /></div>
+      }
+      <span class="ai-tag"><span class="material-icons-round">smart_toy</span> AI Avatar</span>
+    </div>
+
+    <h3>{{ trainer().name }}</h3>
+
+    @if (!session()) {
+      <p class="muted">Start a live session — the AI avatar presents the module and answers your questions, out loud.</p>
+      @if (isAuthenticated()) {
+        <button mat-flat-button color="primary" (click)="start()" [disabled]="loading()">
+          @if (loading()) { <mat-progress-spinner diameter="18" mode="indeterminate" /> }
+          @else { <span class="material-icons-round">videocam</span> }
+          &nbsp;Start AI session
+        </button>
+      } @else {
+        <button mat-flat-button color="primary" (click)="goToLogin()">
+          <span class="material-icons-round">login</span>&nbsp;Log in to start
+        </button>
+        <span class="login-hint muted">You need an account to talk to the AI trainer.</span>
+      }
+    } @else {
+      <p class="in-call"><span class="live-dot"></span> Live session in progress…</p>
+      <button mat-stroked-button (click)="endSession()">
+        <span class="material-icons-round">call_end</span>&nbsp;End session
+      </button>
+    }
+
+    @if (errorMsg()) {
+      <p class="err"><span class="material-icons-round">error_outline</span> {{ errorMsg() }}</p>
+    }
+  </div>
+</div>
+
+<!-- ============ Big full-screen call overlay ============ -->
+@if (session()) {
+  <div class="call-overlay">
+    <div class="call-window">
+      <!-- Large avatar video -->
+      <div class="call-video">
+        <!-- Real Anam avatar target -->
+        <video #anamVideo [id]="videoId()" autoplay playsinline class="anam-video" [class.show]="live()"></video>
+
+        <!-- Preview / demo shown until the live stream plays -->
+        @if (!live()) {
+          @if (trainer().avatarVideoUrl && !videoError()) {
+            <video [src]="trainer().avatarVideoUrl" autoplay muted loop playsinline (error)="videoError.set(true)" class="preview-video"></video>
+          } @else {
+            <div class="video-fallback big"><app-avatar [name]="trainer().name" [size]="180" badge="smart_toy" /></div>
+          }
+        }
+
+        <!-- Top bar -->
+        <div class="v-top">
+          <div class="who">
+            <span class="badge" [class.on]="showLiveUi()">
+              @if (showLiveUi()) { <span class="dot"></span> Live } @else { Preparing }
+            </span>
+            <span class="tname">{{ trainer().name }}</span>
+            <span class="prov">· {{ session()?.provider }}</span>
+          </div>
+          <button class="x" (click)="endSession()" aria-label="End call"><span class="material-icons-round">close</span></button>
+        </div>
+
+        <!-- Connecting -->
+        @if (connecting()) {
+          <div class="connecting">
+            <mat-progress-spinner diameter="46" mode="indeterminate" />
+            <span>Connecting to your AI trainer…</span>
+          </div>
+        }
+
+        <!-- Listening hint -->
+        @if (isReal() && live()) {
+          <div class="listening"><span class="material-icons-round">graphic_eq</span> Listening — just speak</div>
+        }
+
+        <!-- Call controls -->
+        <div class="v-controls">
+          @if (isReal()) {
+            <button class="cbtn" [class.off]="micMuted()" (click)="toggleMic()" [attr.aria-label]="micMuted() ? 'Unmute microphone' : 'Mute microphone'">
+              <span class="material-icons-round">{{ micMuted() ? 'mic_off' : 'mic' }}</span>
+            </button>
+          }
+          <button class="cbtn end" (click)="endSession()" aria-label="End call"><span class="material-icons-round">call_end</span></button>
+        </div>
+      </div>
+
+      <!-- Conversation side panel -->
+      <div class="call-side">
+        <div class="side-head"><span class="material-icons-round">forum</span> Conversation</div>
+        <div class="chat">
+          @if (lines().length === 0 && !thinking()) {
+            <p class="empty muted">Say hello out loud, or type a question below.</p>
+          }
+          @for (line of lines(); track $index) {
+            <div class="line" [class.me]="line.from === 'user'">
+              <span class="bubble">{{ line.text }}</span>
+            </div>
+          }
+          @if (thinking()) { <div class="line"><span class="bubble typing"><i></i><i></i><i></i></span></div> }
+        </div>
+        <form class="composer" (ngSubmit)="ask()">
+          <input [(ngModel)]="draft" name="draft" placeholder="Type your question…" autocomplete="off" />
+          <button mat-flat-button color="primary" type="submit" [disabled]="!draft.trim() || (thinking() && !isReal())">
+            <span class="material-icons-round">send</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+}

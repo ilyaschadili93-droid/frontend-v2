@@ -1,0 +1,47 @@
+@switch (status()) {
+  @case ('loading') {
+    <div class="container section-pad"><app-card-skeleton [count]="6" /></div>
+  }
+  @case ('error') {
+    <div class="container section-pad"><app-error-state (retry)="load()" /></div>
+  }
+  @default {
+    @if (category(); as cat) {
+      <!-- Banner -->
+      <header class="banner" [style.--accent]="cat.colorHex">
+        <div class="container banner-inner">
+          <a class="back" routerLink="/categories"><span class="material-icons-round">arrow_back</span> Categories</a>
+          <div class="head">
+            <div class="ic"><span class="material-icons-round">{{ cat.icon }}</span></div>
+            <div>
+              <h1>{{ cat.name }}</h1>
+              <p>{{ cat.description }}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="container">
+        <!-- Stats -->
+        <div class="stats">
+          <app-stat-card icon="menu_book" [value]="formations().length" label="Formations" [accent]="cat.colorHex" />
+          <app-stat-card icon="schedule" [value]="totalHours() + 'h'" label="Total content" accent="var(--gradient-cool)" />
+          <app-stat-card icon="groups" [value]="totalSessions()" label="Live sessions" accent="var(--gradient-warm)" />
+        </div>
+
+        <!-- Formations -->
+        <h2 class="sec-title">Formations in {{ cat.name }}</h2>
+        @if (formations().length === 0) {
+          <app-empty-state icon="menu_book" title="No formations yet"
+            message="This category has no formations at the moment." />
+        } @else {
+          <div class="grid" [@listStagger]="formations().length">
+            @for (f of formations(); track f.id) {
+              <app-formation-card [formation]="f" [accent]="cat.colorHex" />
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+}

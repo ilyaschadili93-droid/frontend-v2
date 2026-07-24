@@ -12,5 +12,5 @@ export const environment = {
   // Set useMockData: true to run the UI standalone on local seed data instead.
   production: false,
   useMockData: false,
-  apiBaseUrl: 'http://localhost:5048/api',
+  apiBaseUrl: 'https://formateur-ai-backend-production.up.railway.app/api',
 };

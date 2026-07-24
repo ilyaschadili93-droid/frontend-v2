@@ -8,5 +8,5 @@
 export const environment = {
   production: true,
   useMockData: false,
-  apiBaseUrl: '/api',
+  apiBaseUrl: 'https://formateur-ai-backend-production.up.railway.app/api',
 };
